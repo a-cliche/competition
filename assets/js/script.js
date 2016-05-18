@@ -36,7 +36,6 @@ $(function(){
 		groups.push(groupPair);
 
 		var rounds = 1;
-		// var matchesCount = teams.length/2.0;
 
 		for(var i=0;i<rounds;i++){
 
@@ -44,20 +43,8 @@ $(function(){
 				groups = makeGroupPairs(allTeams);
 			}
 
-			allTeams = playRound(groups); // Todo: kak da raboti s for
+			allTeams = playRound(groups);
 
-			// if (i !== 0) {
-			// 	allTeams = uniteGroups(groups);
-
-			// 	var newGroups = getNewGroups(allTeams);
-			// 	// console.log('~~~~~~~');
-			// 	// console.log('newGroups', newGroups);
-			// 	// console.log('~~~~~~~');
-			// 	// console.log('newGroups', newGroups);
-			// 	generateTwoTeamsForEachGroup(newGroups);
-			// } else {
-			// 	playRound(matchesCount,groupA,groupB);
-			// }
 		}
 
 		render(allTeams);
@@ -74,20 +61,21 @@ $(function(){
 
 		teams = uniteGroups(groups);
 
-		if(getGroupsWithEqualScore(teams)){
+		if(checkIfRepeatingScores(teams)){
+
 			newGroupsTemp = getGroupsWithEqualScore(teams);
 
 			teams = removeRepeatingTeams(teams,newGroupsTemp);
 
 			groupesWithEqScore = makeGroupPairs(newGroupsTemp);
 
-			console.log(groupesWithEqScore);
-
 			// Recursion
-			// teams.concat(playRound(groupesWithEqScore));	
+
+			teams.concat(playRound(groupesWithEqScore));
+
 		}
 
-
+		console.log("END", JSON.stringify(teams));
 		return teams;
 	}
 
@@ -116,20 +104,32 @@ $(function(){
 			result = [];
 
 		for (i = 0; i < groupCount; i++) {
-			var groupA, groupB;
-			var currentGroupLength = 0;
+			var groupA=[],
+				groupB=[];
+
 
 			if (groupsArray[i].length % 2 !== 0 && i < groupCount - 1) {
 				var lastTeam = groupsArray[i].pop();
-				groupsArray[i+1].splice(0, 1, lastTeam);
+				groupsArray[i+1].unshift(lastTeam);
 			}
 
-			currentGroupLength = groupsArray[i].length;
-			groupB = groupsArray[i];
-			groupA = groupsArray[i].splice(0, Math.ceil(currentGroupLength / 2.0));
+			// groupB = groupsArray[i];
+			// groupA = groupsArray[i].splice(0, Math.ceil(currentGroupLength / 2.0));
 
-			result.push([groupA,groupB]);
+			groupsArray[i].forEach(function(item,index){
+				if(index<groupsArray[i].length/2.0) {
+					groupA.push(item);
+				}
+				else {
+					groupB.push(item);
+				}
+			})
+
+			if(groupA.length && groupB.length){
+				result.push([groupA,groupB]);
+			}
 		}
+
 
 		return result;
 	}
@@ -144,6 +144,10 @@ $(function(){
 		    if(uniqueScores.indexOf(teamsArray[i].score) === -1){
 		        uniqueScores.push(teamsArray[i].score);
 		    }
+		}
+
+		if(uniqueScores.length == teamsArray.length) {
+			return teamsArray;
 		}
 
 		for (i = 0; i < uniqueScores.length; i++) {
@@ -223,10 +227,26 @@ $(function(){
 			}
 		}
 
-		// console.log('home', home);
-		// console.log('away', away);
-		// console.log('-------');
 	}
+
+	function checkIfRepeatingScores(teamsArray) {
+		var uniqueScores = [];
+
+		for (i = 0; i < teamsArray.length; i++){
+		    if(uniqueScores.indexOf(teamsArray[i].score) === -1){
+		        uniqueScores.push(teamsArray[i].score);
+		    }
+		}
+
+		if(uniqueScores.length == teamsArray.length) {
+			return false;
+		}
+
+		return true;
+
+	}
+
+
 
 
 
