@@ -54,48 +54,42 @@ $(function(){
 
 	function playRound(groups){
 		var teams = [],
-			newGroupsTemp = [],
-			groupesWithEqScore = [];
+			resolved = [];
 
 		playMatches(groups);
 
 		teams = uniteGroups(groups);
 
-		if(checkIfRepeatingScores(teams)){
+		while(checkIfRepeatingScores(teams)){
 
-			newGroupsTemp = getGroupsWithEqualScore(teams);
+			resolved = resolveConflicts(teams);
 
-			teams = removeRepeatingTeams(teams,newGroupsTemp);
-
-			groupesWithEqScore = makeGroupPairs(newGroupsTemp);
-
-			// Recursion
-
-			teams.concat(playRound(groupesWithEqScore));
+			teams = updateTable(teams,resolved);
 
 		}
 
-		console.log("END", JSON.stringify(teams));
+		teams = sortTableByScore(teams);
+
 		return teams;
 	}
 
 
 
-	// Removes repeating items from two arrays
-	function removeRepeatingTeams(removeFrom,toRemove){
+	function resolveConflicts(teams) {
+		var temp = [],
+			resolved = [];
+		
+		temp = getGroupsWithEqualScore(teams);
 
-		toRemove = flattenArray(toRemove); 
+		resolved = makeGroupPairs(temp);
 
-		for (i = 0; i < removeFrom.length; i++){
-			for(j = 0; j < toRemove.length; j++){
-			    if(removeFrom[i].id === toRemove[j].id){
-			        removeFrom.splice(i, 1);
-			    }	
-			}
-		}
+		playMatches(resolved);
 
-		return removeFrom;
+		return resolved;
 	}
+
+
+
 
 
 	// Splits groups in two
@@ -113,9 +107,6 @@ $(function(){
 				groupsArray[i+1].unshift(lastTeam);
 			}
 
-			// groupB = groupsArray[i];
-			// groupA = groupsArray[i].splice(0, Math.ceil(currentGroupLength / 2.0));
-
 			groupsArray[i].forEach(function(item,index){
 				if(index<groupsArray[i].length/2.0) {
 					groupA.push(item);
@@ -127,6 +118,12 @@ $(function(){
 
 			if(groupA.length && groupB.length){
 				result.push([groupA,groupB]);
+			}
+			else if(groupA.length){
+				result.push([groupA,[]]);	
+			}
+			else if(groupB.length){
+				result.push([groupB,[]]);
 			}
 		}
 
@@ -181,13 +178,10 @@ $(function(){
 
 		teams = flattenArray(teams);
 
-		teams.sort(function (a, b) {
-		  return b.score - a.score;
-		});
+		teams = sortTableByScore(teams);
 
 		return teams;
 	}
-
 
 
 
@@ -247,6 +241,19 @@ $(function(){
 	}
 
 
+	
+	function updateTable(old,newResults){
+		for(i=0; i<old.length; i++){
+			for(j=0; j<newResults.length; j++){
+				if(old[i].id===newResults[j].id){
+					old[i] = newResults[j];
+				}
+			}
+		}
+
+		return old;
+	}
+
 
 
 
@@ -267,5 +274,10 @@ $(function(){
 		return [].concat.apply([], arr);
 	}
 
+	function sortTableByScore(teams){
+		return teams.sort(function (a, b) {
+		  return b.score - a.score;
+		});
+	}
 
 });
