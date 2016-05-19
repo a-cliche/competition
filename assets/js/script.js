@@ -45,9 +45,11 @@ $(function(){
 		for(var i=0;i<rounds;i++){
 
 			if( i !== 0) {
+				console.log('allTeams', allTeams);
 				groups = makeGroupPairs([allTeams]);
-				console.log(groups);
+				console.log("Groups input:", JSON.stringify(groups));
 			}
+
 
 			allTeams = playRound(groups, rounds, i);
 			render(allTeams, i);
@@ -63,18 +65,19 @@ $(function(){
 			resolved = [];
 
 		playMatches(groups);
-		console.log(groups);
 		teams = uniteGroups(groups);
 
-		if (currentRound !== 0) {
-		// while(currentRound !== rounds - 1){
+		// if (currentRound !== 0) {
+		while(checkIfRepeatingScores(teams)){
 
 			resolved = resolveConflicts(teams);
 
-			console.log('resolved', resolved);
-			teams = updateTable(teams,resolved);
 
+			teams = updateTable(teams,resolved);
+			console.log(teams);
 		}
+
+		console.log("In function",JSON.stringify(teams));
 
 		teams = sortTableByScore(teams);
 		// console.log(teams);
