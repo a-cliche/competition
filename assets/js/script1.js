@@ -102,8 +102,12 @@ $(function(){
 		groupsOfSameScores.forEach(function(group,index){
 
 			groupCount = group.length;
-			if (groupCount % 2 !== 0 && index < groupCount - 2) {
+
+			if (groupCount % 2 !== 0 && index < groupsOfSameScores.length - 2) {
 				var lastTeam = group.pop();
+
+				console.log("vreme e ", groupsOfSameScores);
+
 				groupsOfSameScores[index+1].unshift(lastTeam);
 			}
 
@@ -207,22 +211,27 @@ $(function(){
 	function fight(home, away, container){
 		var result = Math.round(Math.random()*10)/10;
 
+		var winner;
 		
 		if (!away) {
 			home.score += 1;
+			winner = 'autoWin';
 		} else {
 
 			if(!checkIfMetBefore(home,away)){
 
 				if(result<0.3){
 					home.score ++;
+					winner = 'homeWinner';
 				}
 				else if(result>0.6){
 					away.score ++;
+					winner = 'awayWinner';
 				}
 				else{
 					home.score += 0.5;
 					away.score += 0.5;
+					winner = 'drawWinner';
 				}
 
 				home.oponents.push(away.id);
@@ -235,11 +244,12 @@ $(function(){
 
 		var tbody = $('<tbody><tr></tr></tbody>');
 		container.append(tbody);
-		tbody.find('tr').append($('<td>Name: ' + home.name + '; Score: ' + home.score + '</td>'));
+		tbody.find('tr').append($('<td class="home ' + winner + '">Name: ' + home.name + '; Score: ' + home.score + '</td>'));
 
 		if (away) {
-			tbody.find('tr').append($('<td>Name: ' + away.name + '; Score: ' + away.score + '</td>'));
+			tbody.find('tr').append($('<td class="away ' + winner + '"> Name: ' + away.name + '; Score: ' + away.score + '</td>'));
 		}
+
 
 		// wrapper.append(container);
 	}
