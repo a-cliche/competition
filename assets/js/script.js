@@ -1,25 +1,46 @@
 $(function(){
-	var groups = []; //Array of objects(pairs of groups)
-	var allTeams = []; // All teams array
 
-	$.getJSON('assets/data/teams.json', function(res){
+	// FRONTEND 
 
+	$('.submit').on('click', function(e){
+		e.preventDefault();
 
-		var teams = res.teams;
+		var numberOfTeams = Number($('#teams').val().trim()),
+			numberOfRounds = Number($('#rounds').val().trim());
 
-		generateTables(teams);
+		var teams = [];
 
+		if(numberOfTeams>0 && numberOfTeams>0){
+			teams = generateTeams(numberOfTeams);
 
-	});
+			generateTables(teams,numberOfRounds);
+		}	
 
-	function generateTables(teams){
+	})
+
+	function generateTeams(num){
+		var teams = [];
+
+		for(var i = 1; i < num + 1; i++){
+			teams.push({
+				id: i,
+				name: "Team " + i,
+				score: 0
+			})
+		}
+
+		return teams;
+	}
+
+	function generateTables(teams,rounds){
 
 		var	groupA = [],
 			groupB = [];
 
-		teams.forEach(function (item,i){
+		var allTeams = [];
+		var groups = []; //Array of objects(pairs of groups)
 
-			item.score = 0;
+		teams.forEach(function (item,i){
 
 			if(i<teams.length/2.0){
 				groupA.push(item);
@@ -34,8 +55,6 @@ $(function(){
 		groupPair.push(groupB);
 
 		groups.push(groupPair);
-
-		var rounds = 1;
 
 		for(var i=0;i<rounds;i++){
 
@@ -241,7 +260,7 @@ $(function(){
 	}
 
 
-	
+
 	function updateTable(old,newResults){
 		for(i=0; i<old.length; i++){
 			for(j=0; j<newResults.length; j++){
@@ -261,6 +280,9 @@ $(function(){
 	function render(teams){
 		var allTeamList = $('.allTeams'),
 			html = '';
+
+		allTeamList.html('');
+		console.log(teams);
 
 		teams.forEach(function (item,i){
 
