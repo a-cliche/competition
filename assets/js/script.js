@@ -40,26 +40,12 @@ $(function(){
 		var allTeams = [];
 		var groups = []; //Array of objects(pairs of groups)
 
-		teams.forEach(function (item,i){
-
-			if(i<teams.length/2.0){
-				groupA.push(item);
-			}
-			else{
-				groupB.push(item);
-			}
-		});
-
-		var groupPair = [];
-		groupPair.push(groupA);
-		groupPair.push(groupB);
-
-		groups.push(groupPair);
+		groups = makeGroupPairs([teams]);
 
 		for(var i=0;i<rounds;i++){
 
 			if( i !== 0) {
-				groups = makeGroupPairs(allTeams);
+				groups = makeGroupPairs([allTeams]);
 			}
 
 			allTeams = playRound(groups);
@@ -106,7 +92,6 @@ $(function(){
 
 		return resolved;
 	}
-
 
 
 
@@ -222,6 +207,8 @@ $(function(){
 		});
 	}
 
+
+
 	function fight(home,away){
 		var result = Math.round(Math.random()*10)/10;
 
@@ -241,6 +228,8 @@ $(function(){
 		}
 
 	}
+
+
 
 	function checkIfRepeatingScores(teamsArray) {
 		var uniqueScores = [];
@@ -282,7 +271,6 @@ $(function(){
 			html = '';
 
 		allTeamList.html('');
-		console.log(teams);
 
 		teams.forEach(function (item,i){
 
