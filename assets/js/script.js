@@ -1,6 +1,6 @@
 $(function(){
 
-	// FRONTEND 
+	// FRONTEND
 
 	$('.submit').on('click', function(e){
 		e.preventDefault();
@@ -10,11 +10,11 @@ $(function(){
 
 		var teams = [];
 
-		if(numberOfTeams>0 && numberOfTeams>0){
+		if(numberOfTeams>0 && numberOfRounds>0){
 			teams = generateTeams(numberOfTeams);
 
 			generateTables(teams,numberOfRounds);
-		}	
+		}
 
 	})
 
@@ -46,35 +46,38 @@ $(function(){
 
 			if( i !== 0) {
 				groups = makeGroupPairs([allTeams]);
+				console.log(groups);
 			}
 
-			allTeams = playRound(groups);
-
+			allTeams = playRound(groups, rounds, i);
+			render(allTeams, i);
 		}
 
-		render(allTeams);
+
 	}
 
 
 
-	function playRound(groups){
+	function playRound(groups, rounds, currentRound){
 		var teams = [],
 			resolved = [];
 
 		playMatches(groups);
-
+		console.log(groups);
 		teams = uniteGroups(groups);
 
-		while(checkIfRepeatingScores(teams)){
+		if (currentRound !== 0) {
+		// while(currentRound !== rounds - 1){
 
 			resolved = resolveConflicts(teams);
 
+			console.log('resolved', resolved);
 			teams = updateTable(teams,resolved);
 
 		}
 
 		teams = sortTableByScore(teams);
-
+		// console.log(teams);
 		return teams;
 	}
 
@@ -83,12 +86,13 @@ $(function(){
 	function resolveConflicts(teams) {
 		var temp = [],
 			resolved = [];
-		
+
 		temp = getGroupsWithEqualScore(teams);
 
 		resolved = makeGroupPairs(temp);
 
-		playMatches(resolved);
+
+		// playMatches(resolved);
 
 		return resolved;
 	}
@@ -124,13 +128,12 @@ $(function(){
 				result.push([groupA,groupB]);
 			}
 			else if(groupA.length){
-				result.push([groupA,[]]);	
+				result.push([groupA,[]]);
 			}
 			else if(groupB.length){
 				result.push([groupB,[]]);
 			}
 		}
-
 
 		return result;
 	}
@@ -165,6 +168,7 @@ $(function(){
 			});
 		}
 
+		// console.log('newGroups', newGroups);
 		return newGroups;
 	}
 
@@ -227,6 +231,25 @@ $(function(){
 			}
 		}
 
+		var wrapper = $('.allTeams');
+
+		var container = $('<div class="col-md-12" />');
+
+		container.append($('<div class="col-md-6">' +
+													'<p>Oppenent 1</p>' +
+													'<p>Name: ' + home.name + '; Score: ' + home.score + '</p>' +
+												'</div>'
+											));
+
+		if (away) {
+			container.append($('<div class="col-md-6">' +
+														'<p>Oppenent 2</p>' +
+														'<p>Name: ' + away.name + '; Score: ' + away.score + '</p>' +
+													'</div>'
+												));
+		}
+
+		wrapper.append(container);
 	}
 
 
@@ -266,11 +289,14 @@ $(function(){
 
 
 
-	function render(teams){
-		var allTeamList = $('.allTeams'),
+	function render(teams, currentRound){
+		var allTeamsContainer = $('.allTeams');
+		var allTeamList = $('<ul />'),
 			html = '';
+		var round = currentRound + 1;
+		allTeamsContainer.append($('<p>Round ' + round + '</p>'));
 
-		allTeamList.html('');
+		// allTeamList.html('');
 
 		teams.forEach(function (item,i){
 
@@ -278,6 +304,9 @@ $(function(){
 
 			allTeamList.append($(html));
 		});
+
+		allTeamsContainer.append(allTeamList);
+
 	}
 
 	function flattenArray(arr){
